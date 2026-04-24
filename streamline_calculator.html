@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Streamline Efficiency Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #08111f;
+    --navy2: #0e1c30;
+    --navy3: #152540;
+    --cyan: #00e5c8;
+    --gold: #f5c842;
+    --blue: #3b8bd4;
+    --red: #ff4d6d;
+    --green: #4ade80;
+    --slate: #8ea3bf;
+    --muted: #4a6480;
+    --white: #f0f4f8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--navy);
+    color: var(--white);
+    padding: 28px 24px 40px;
+  }
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--cyan);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 34px;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: var(--slate);
+    font-weight: 300;
+    margin-bottom: 28px;
+    line-height: 1.6;
+    max-width: 600px;
+  }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 660px) { .main-grid { grid-template-columns: 1fr; } }
+
+  /* Sliders */
+  .panel {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(0,229,200,0.1);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .panel-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .slider-group { margin-bottom: 18px; }
+  .slider-group:last-child { margin-bottom: 0; }
+  .slider-group label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 7px;
+  }
+  .slider-group label span {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--cyan);
+    letter-spacing: 0;
+    text-transform: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 2px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--cyan);
+    border: 3px solid var(--navy2);
+    box-shadow: 0 0 0 1px var(--cyan);
+    cursor: pointer;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--cyan);
+    border: 3px solid var(--navy2);
+    cursor: pointer;
+  }
+
+  /* Your data highlight */
+  .your-data-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0,229,200,0.08);
+    border: 1px solid rgba(0,229,200,0.25);
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    cursor: pointer;
+    margin-bottom: 16px;
+    transition: background 0.2s;
+  }
+  .your-data-btn:hover { background: rgba(0,229,200,0.14); }
+
+  /* Results */
+  .results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .r-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+  .r-card.span2 { grid-column: 1 / -1; }
+  .r-card.highlight { border-color: rgba(245,200,66,0.3); }
+  .r-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .r-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--cyan);
+    line-height: 1;
+  }
+  .r-card.highlight .r-val { color: var(--gold); font-size: 34px; }
+  .eff-bar-wrap {
+    height: 4px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .eff-bar {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--gold);
+    transition: width 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+  }
+  .eff-note {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 5px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* Benchmark bar */
+  .bench-wrap {
+    margin-top: 10px;
+  }
+  .bench-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .bench-track {
+    position: relative;
+    height: 20px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 3px;
+    overflow: visible;
+  }
+  .bench-range {
+    position: absolute;
+    top: 0; height: 100%;
+    background: rgba(0,229,200,0.12);
+    border-radius: 3px;
+  }
+  .bench-marker {
+    position: absolute;
+    top: -3px;
+    width: 3px;
+    height: 26px;
+    border-radius: 2px;
+    background: var(--gold);
+    transform: translateX(-50%);
+    transition: left 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+  }
+  .bench-ends {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+  }
+  .bench-range-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: rgba(0,229,200,0.7);
+    white-space: nowrap;
+  }
+
+  /* Frontal area visual */
+  .visual-panel {
+    grid-column: 1 / -1;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(0,229,200,0.1);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .visual-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+    margin-top: 12px;
+  }
+  @media (max-width: 660px) { .visual-grid { grid-template-columns: 1fr; } }
+
+  canvas { display: block; width: 100%; }
+
+  .cd-scale {
+    margin-top: 12px;
+  }
+  .cd-scale-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .cd-gradient-bar {
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #00e5c8 0%, #f5c842 45%, #ff4d6d 100%);
+    position: relative;
+  }
+  .cd-pointer {
+    position: absolute;
+    top: -4px;
+    width: 4px;
+    height: 16px;
+    background: white;
+    border-radius: 2px;
+    transform: translateX(-50%);
+    transition: left 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.4);
+  }
+  .cd-scale-ends {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+  }
+
+  .insight-box {
+    background: rgba(0,229,200,0.04);
+    border: 1px solid rgba(0,229,200,0.1);
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin-top: 12px;
+  }
+  .insight-box p {
+    font-size: 12px;
+    color: var(--slate);
+    line-height: 1.65;
+    font-weight: 300;
+  }
+  .insight-box strong { color: var(--cyan); font-weight: 500; }
+
+  .divider { height: 1px; background: rgba(255,255,255,0.05); margin: 20px 0; }
+</style>
+</head>
+<body>
+
+<div class="eyebrow">Physics of Swimming · Interactive Tool</div>
+<h1>Streamline Efficiency Calculator</h1>
+<p class="subtitle">Enter your glide data to calculate drag force, drag coefficient, and streamline efficiency. See how your frontal area directly affects your Cd in real time.</p>
+
+<button class="your-data-btn" onclick="loadMyData()">&#9654; Load my recorded data (Aaruni)</button>
+
+<div class="main-grid">
+
+  <!-- LEFT: sliders -->
+  <div>
+    <div class="panel">
+      <div class="panel-title">Glide Measurements</div>
+      <div class="slider-group">
+        <label>Glide Distance (m) <span id="distVal">3.0 m</span></label>
+        <input type="range" id="distSlider" min="0.5" max="8" value="3.0" step="0.1">
+      </div>
+      <div class="slider-group">
+        <label>Glide Time (s) <span id="timeVal">3.0 s</span></label>
+        <input type="range" id="timeSlider" min="0.5" max="8" value="3.0" step="0.1">
+      </div>
+      <div class="slider-group">
+        <label>Swimmer Mass (kg) <span id="massVal">48.5 kg</span></label>
+        <input type="range" id="massSlider" min="30" max="120" value="48.5" step="0.5">
+      </div>
+      <div class="slider-group">
+        <label>Streamline Tightness <span id="areaVal">loose</span></label>
+        <input type="range" id="areaSlider" min="1" max="5" value="3" step="1">
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="panel-title" style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Results</div>
+    <div class="results-grid">
+      <div class="r-card">
+        <div class="r-label">Initial Velocity</div>
+        <div class="r-val" id="r-vi">— m/s</div>
+      </div>
+      <div class="r-card">
+        <div class="r-label">Deceleration</div>
+        <div class="r-val" id="r-acc">— m/s²</div>
+      </div>
+      <div class="r-card">
+        <div class="r-label">Drag Force</div>
+        <div class="r-val" id="r-fd">— N</div>
+      </div>
+      <div class="r-card">
+        <div class="r-label">Drag Coefficient (Cd)</div>
+        <div class="r-val" id="r-cd">—</div>
+      </div>
+      <div class="r-card highlight span2">
+        <div class="r-label">Streamline Efficiency</div>
+        <div class="r-val" id="r-eff">—%</div>
+        <div class="eff-bar-wrap"><div class="eff-bar" id="eff-bar" style="width:0%"></div></div>
+        <div class="eff-note" id="eff-note"></div>
+      </div>
+    </div>
+
+    <div class="bench-wrap" style="margin-top:16px;">
+      <div class="bench-label">Your Cd vs. competitive range (0.03 – 0.10)</div>
+      <div class="bench-track">
+        <div class="bench-range" id="bench-range" style="left:0%;width:70%"></div>
+        <span class="bench-range-label">competitive</span>
+        <div class="bench-marker" id="bench-marker" style="left:0%"></div>
+      </div>
+      <div class="bench-ends"><span>0.00</span><span>0.14</span></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: frontal area visual -->
+  <div>
+    <div class="panel">
+      <div class="panel-title">Frontal Area Visual — how streamline tightness affects Cd</div>
+      <canvas id="bodyCanvas" height="240"></canvas>
+      <div class="cd-scale" style="margin-top:14px;">
+        <div class="cd-scale-label">Drag coefficient (Cd) scale</div>
+        <div class="cd-gradient-bar">
+          <div class="cd-pointer" id="cd-pointer" style="left:30%"></div>
+        </div>
+        <div class="cd-scale-ends"><span>0.02 — elite</span><span>0.12 — poor</span></div>
+      </div>
+      <div class="insight-box">
+        <p id="insight-text">Adjust the streamline tightness slider to see how body position changes the frontal area and drag coefficient.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const rho = 1000;
+
+const tightnessLevels = [
+  { label: 'very loose', area: 0.110, color: '#ff4d6d', insight: 'Arms wide, hips dropped, head up. Maximum frontal area — roughly 0.11 m². Drag is high and the swimmer decelerates rapidly. Common mistake for beginners.' },
+  { label: 'loose',      area: 0.090, color: '#f5a623', insight: 'Slight arm separation, mild hip sag. Frontal area ~0.09 m². Still significantly more drag than a tight streamline — small misalignments add up fast.' },
+  { label: 'moderate',   area: 0.070, color: '#f5c842', insight: 'Arms together overhead, body roughly flat. Frontal area ~0.07 m². Represents an average competitive swimmer — room for improvement in hip and head position.' },
+  { label: 'tight',      area: 0.050, color: '#7de8d4', insight: 'Arms squeezed overhead, ears covered, hips level. Frontal area ~0.05 m². Strong competitive level — consistent with low Cd values like the one recorded in this experiment.' },
+  { label: 'elite',      area: 0.035, color: '#00e5c8', insight: 'Fully compressed: arms locked, hands stacked, body horizontal, toes pointed. Frontal area ~0.035 m². Elite-level streamline — approaches the theoretical minimum for a human body.' },
+];
+
+function getEffNote(eff) {
+  if (eff >= 85) return '★ Elite — excellent streamline, minimal drag';
+  if (eff >= 70) return '✓ Competitive — solid efficiency';
+  if (eff >= 50) return '△ Developing — tighten hip/arm position';
+  return '✗ High drag — significant body misalignment';
+}
+
+function update() {
+  const D    = parseFloat(document.getElementById('distSlider').value);
+  const T    = parseFloat(document.getElementById('timeSlider').value);
+  const m    = parseFloat(document.getElementById('massSlider').value);
+  const lvl  = parseInt(document.getElementById('areaSlider').value) - 1;
+  const t    = tightnessLevels[lvl];
+  const A    = t.area;
+
+  document.getElementById('distVal').textContent = D.toFixed(1) + ' m';
+  document.getElementById('timeVal').textContent = T.toFixed(1) + ' s';
+  document.getElementById('massVal').textContent = m.toFixed(1) + ' kg';
+  document.getElementById('areaVal').textContent = t.label;
+
+  // kinematics: vf = 0, vi = 2D/T, a = -vi/T
+  const vi   = (2 * D) / T;
+  const a    = -vi / T;
+  const Fd   = m * Math.abs(a);
+  // Cd from drag equation: Fd = 0.5 * rho * Cd * A * vi^2
+  const Cd   = (2 * Fd) / (rho * A * vi * vi);
+
+  // efficiency: Cd < 0.03 = 100, Cd > 0.12 = 0, linear
+  const eff  = Math.round(Math.max(0, Math.min(100, ((0.12 - Cd) / (0.12 - 0.02)) * 100)));
+
+  document.getElementById('r-vi').textContent  = vi.toFixed(3) + ' m/s';
+  document.getElementById('r-acc').textContent = Math.abs(a).toFixed(4) + ' m/s²';
+  document.getElementById('r-fd').textContent  = Fd.toFixed(2) + ' N';
+  document.getElementById('r-cd').textContent  = Cd.toFixed(4);
+  document.getElementById('r-eff').textContent = eff + '%';
+  document.getElementById('eff-bar').style.width = eff + '%';
+  document.getElementById('eff-note').textContent = getEffNote(eff);
+
+  // benchmark bar marker: Cd range 0–0.14 → 0–100%
+  const markerPct = Math.min(100, (Cd / 0.14) * 100);
+  document.getElementById('bench-marker').style.left = markerPct + '%';
+
+  // Cd scale pointer: range 0.02–0.12 → 0–100%
+  const pointerPct = Math.min(100, Math.max(0, ((Cd - 0.02) / (0.12 - 0.02)) * 100));
+  document.getElementById('cd-pointer').style.left = pointerPct + '%';
+
+  document.getElementById('insight-text').innerHTML = t.insight;
+
+  drawBody(lvl, Cd, A);
+}
+
+function drawBody(lvl, Cd, A) {
+  const canvas = document.getElementById('bodyCanvas');
+  const dpr = window.devicePixelRatio || 1;
+  const dispW = canvas.offsetWidth || 300;
+  const dispH = 240;
+  canvas.width = dispW * dpr;
+  canvas.height = dispH * dpr;
+  canvas.style.height = dispH + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const W = dispW, H = dispH;
+  ctx.clearRect(0, 0, W, H);
+
+  const t = tightnessLevels[lvl];
+  // scale: tightness 0=very loose → spread, 4=elite → tight
+  // spread factor: how wide arms/hips deviate from center line
+  const spread = [0.38, 0.28, 0.18, 0.09, 0.03][lvl];
+  const hipDrop = [0.22, 0.14, 0.07, 0.02, 0.0][lvl];
+  const headUp  = [0.12, 0.07, 0.03, 0.0, -0.02][lvl];
+
+  const cx = W / 2;
+  const bodyY = H * 0.5; // center of body (horizontal swimmer)
+  const bodyLen = W * 0.72;
+  const startX = cx - bodyLen / 2;
+  const endX   = cx + bodyLen / 2;
+  const u = bodyLen; // unit
+
+  // water flow lines (background)
+  ctx.save();
+  for (let i = 0; i < 5; i++) {
+    const yy = H * (0.15 + i * 0.16);
+    ctx.beginPath();
+    ctx.moveTo(0, yy);
+    ctx.lineTo(W, yy);
+    ctx.strokeStyle = 'rgba(59,139,212,0.06)';
+    ctx.lineWidth = 0.5;
+    ctx.setLineDash([6, 8]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  ctx.restore();
+
+  // direction arrow (left side = direction of travel)
+  ctx.beginPath();
+  ctx.moveTo(startX - 18, bodyY);
+  ctx.lineTo(startX - 6, bodyY);
+  ctx.strokeStyle = 'rgba(0,229,200,0.35)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(startX - 8, bodyY - 4);
+  ctx.lineTo(startX - 2, bodyY);
+  ctx.lineTo(startX - 8, bodyY + 4);
+  ctx.strokeStyle = 'rgba(0,229,200,0.35)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.font = '9px DM Mono, monospace';
+  ctx.fillStyle = 'rgba(0,229,200,0.35)';
+  ctx.fillText('travel', startX - 36, bodyY - 6);
+
+  // drag arrow (right side = drag force opposes motion)
+  const dragLen = 14 + lvl * 4; // bigger drag = looser streamline
+  ctx.beginPath();
+  ctx.moveTo(endX + 6, bodyY);
+  ctx.lineTo(endX + 6 + dragLen, bodyY);
+  ctx.strokeStyle = '#ff4d6d';
+  ctx.lineWidth = 1 + (4 - lvl) * 0.4;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(endX + 6 + dragLen + 1, bodyY - 4);
+  ctx.lineTo(endX + 6 + dragLen + 7, bodyY);
+  ctx.lineTo(endX + 6 + dragLen + 1, bodyY + 4);
+  ctx.strokeStyle = '#ff4d6d';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.font = '9px DM Mono, monospace';
+  ctx.fillStyle = '#ff4d6d';
+  ctx.fillText('drag', endX + 8, bodyY - 8);
+
+  // body color based on tightness
+  const bodyColor = t.color;
+
+  // TORSO (main body line, slightly thick)
+  const torsoThick = 11 + hipDrop * u * 0.4;
+  ctx.beginPath();
+  ctx.moveTo(startX + u * 0.15, bodyY + hipDrop * u * 0.15);
+  ctx.bezierCurveTo(
+    cx - u * 0.05, bodyY + hipDrop * u * 0.25,
+    cx + u * 0.05, bodyY + hipDrop * u * 0.2,
+    endX - u * 0.15, bodyY
+  );
+  ctx.lineWidth = torsoThick;
+  ctx.strokeStyle = bodyColor;
+  ctx.lineCap = 'round';
+  ctx.globalAlpha = 0.85;
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+
+  // HEAD (circle at right end = leading end)
+  const headX = endX - u * 0.06;
+  const headY = bodyY + headUp * u * 0.25;
+  ctx.beginPath();
+  ctx.arc(headX, headY, 9, 0, Math.PI * 2);
+  ctx.fillStyle = bodyColor;
+  ctx.globalAlpha = 0.9;
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // ARMS (left = trailing, arms overhead = towards leading end)
+  const armBaseX = endX - u * 0.12;
+  const armBaseY = bodyY + headUp * u * 0.1;
+  const armTipX  = endX + u * 0.04;
+  const armTipY  = bodyY - spread * u * 0.5;
+  const armTipY2 = bodyY + spread * u * 0.5;
+
+  ctx.beginPath();
+  ctx.moveTo(armBaseX, armBaseY);
+  ctx.quadraticCurveTo(armBaseX + u * 0.04, armTipY - u * 0.01, armTipX, armTipY);
+  ctx.lineWidth = 5;
+  ctx.strokeStyle = bodyColor;
+  ctx.globalAlpha = 0.8;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(armBaseX, armBaseY);
+  ctx.quadraticCurveTo(armBaseX + u * 0.04, armTipY2 + u * 0.01, armTipX, armTipY2);
+  ctx.lineWidth = 5;
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+
+  // hand overlap indicator (for tight/elite)
+  if (lvl >= 3) {
+    ctx.beginPath();
+    ctx.arc(armTipX + 4, bodyY, 5, 0, Math.PI * 2);
+    ctx.fillStyle = bodyColor;
+    ctx.globalAlpha = 0.6;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  // LEGS (trailing end, slight splay)
+  const legBaseX = startX + u * 0.18;
+  const legBaseY = bodyY + hipDrop * u * 0.2;
+  const legTipX  = startX - u * 0.02;
+
+  ctx.beginPath();
+  ctx.moveTo(legBaseX, legBaseY);
+  ctx.lineTo(legTipX, legBaseY - spread * u * 0.35);
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = bodyColor;
+  ctx.globalAlpha = 0.75;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(legBaseX, legBaseY);
+  ctx.lineTo(legTipX, legBaseY + spread * u * 0.35);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+
+  // frontal silhouette cross-section (small inset, top-right corner)
+  const inX = W - 56, inY = 14, inW = 42, inH = 56;
+  ctx.fillStyle = 'rgba(14,28,48,0.8)';
+  ctx.beginPath();
+  ctx.roundRect(inX - 4, inY - 4, inW + 8, inH + 16, 4);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.lineWidth = 0.5;
+  ctx.stroke();
+
+  // cross-section: ellipse representing frontal area
+  const ecx = inX + inW / 2;
+  const ecy = inY + inH / 2 - 2;
+  const erx = (inW / 2) * (0.3 + spread * 1.4);
+  const ery = (inH / 2) * (0.25 + hipDrop * 0.9 + spread * 0.5);
+  ctx.beginPath();
+  ctx.ellipse(ecx, ecy, erx, ery, 0, 0, Math.PI * 2);
+  ctx.fillStyle = bodyColor;
+  ctx.globalAlpha = 0.25;
+  ctx.fill();
+  ctx.globalAlpha = 0.7;
+  ctx.strokeStyle = bodyColor;
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.font = '8px DM Mono, monospace';
+  ctx.fillStyle = 'rgba(142,163,191,0.8)';
+  ctx.textAlign = 'center';
+  ctx.fillText('frontal', ecx, inY + inH + 10);
+  ctx.fillText(A.toFixed(3) + ' m²', ecx, inY + inH + 19);
+  ctx.textAlign = 'left';
+
+  // labels
+  ctx.font = '9px DM Mono, monospace';
+  ctx.fillStyle = 'rgba(142,163,191,0.6)';
+  ctx.fillText('← feet', startX, H - 8);
+  ctx.textAlign = 'right';
+  ctx.fillText('hands →', endX, H - 8);
+  ctx.textAlign = 'left';
+}
+
+function loadMyData() {
+  // Aaruni's recorded values
+  document.getElementById('distSlider').value = '5.23';
+  document.getElementById('timeSlider').value = '5.28';
+  document.getElementById('massSlider').value = '48.5';
+  document.getElementById('areaSlider').value = '4'; // tight
+  update();
+}
+
+['distSlider','timeSlider','massSlider','areaSlider'].forEach(id => {
+  document.getElementById(id).addEventListener('input', update);
+});
+
+update();
+window.addEventListener('resize', update);
+</script>
+</body>
+</html>
